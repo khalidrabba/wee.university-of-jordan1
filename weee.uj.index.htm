@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مدير المهام - تطبيق عملي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Cairo', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        .app {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            padding: 1.8rem;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        h1 {
+            color: #facc15;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .sub {
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        #taskInput {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: none;
+            border-radius: 2rem;
+            font-size: 1rem;
+            outline: none;
+            background: #f1f5f9;
+        }
+        #addBtn {
+            background: #facc15;
+            border: none;
+            padding: 0 1.2rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        #addBtn:hover {
+            background: #eab308;
+            transform: scale(0.97);
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: #0f172a80;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            color: #e2e8f0;
+            margin-bottom: 1.2rem;
+            font-size: 0.8rem;
+        }
+        #clearCompleted {
+            background: none;
+            border: 1px solid #ef4444;
+            color: #fecaca;
+            padding: 0.2rem 0.8rem;
+            border-radius: 2rem;
+            cursor: pointer;
+        }
+        .tasks-list {
+            list-style: none;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        .tasks-list li {
+            background: white;
+            margin-bottom: 0.6rem;
+            border-radius: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.4rem 0.4rem 0.4rem 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .task-text {
+            flex: 1;
+            cursor: pointer;
+            color: #0f172a;
+            font-weight: 500;
+            word-break: break-word;
+        }
+        .completed .task-text {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+        .edit-btn, .delete-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            transition: 0.1s;
+        }
+        .edit-btn { color: #3b82f6; background: #eff6ff; }
+        .delete-btn { color: #dc2626; background: #fee2e2; }
+        .empty-msg {
+            text-align: center;
+            color: #94a3b8;
+            padding: 2rem;
+        }
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #94a3b8;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <h1>📋 مهامي</h1>
+    <div class="sub">نظّم يومك — حفظ تلقائي</div>
+
+    <div class="input-group">
+        <input type="text" id="taskInput" placeholder="أضف مهمة جديدة...">
+        <button id="addBtn">➕ أضف</button>
+    </div>
+
+    <div class="stats">
+        <span>📌 المجموع: <strong id="totalCount">0</strong></span>
+        <span>✅ المنجز: <strong id="completedCount">0</strong></span>
+        <button id="clearCompleted">🗑️ حذف المنجز</button>
+    </div>
+
+    <ul class="tasks-list" id="tasksList">
+        <li class="empty-msg">✨ أضف أول مهمة لك</li>
+    </ul>
+    <footer>💾 حفظ تلقائي | اضغط على النص لتغيير الحالة</footer>
+</div>
+
+<script>
+    let tasks = [];
+
+    const tasksContainer = document.getElementById('tasksList');
+    const taskInput = document.getElementById('taskInput');
+    const addBtn = document.getElementById('addBtn');
+    const totalSpan = document.getElementById('totalCount');
+    const completedSpan = document.getElementById('completedCount');
+    const clearCompletedBtn = document.getElementById('clearCompleted');
+
+    function loadTasks() {
+        const stored = localStorage.getItem('todo_tasks');
+        if (stored) {
+            tasks = JSON.parse(stored);
+        } else {
+            tasks = [
+                { id: Date.now() + 1, text: '✨ انقر على أي مهمة لتغيير الحالة', completed: false },
+                { id: Date.now() + 2, text: '✏️ استخدم زر التعديل (القلم)', completed: false },
+                { id: Date.now() + 3, text: '⭐ التطبيق يحفظ تلقائياً', completed: true }
+            ];
+        }
+        render();
+    }
+
+    function save() {
+        localStorage.setItem('todo_tasks', JSON.stringify(tasks));
+    }
+
+    function render() {
+        if (tasks.length === 0) {
+            tasksContainer.innerHTML = '<li class="empty-msg">📭 لا توجد مهام. أضف مهمة جديدة!</li>';
+        } else {
+            tasksContainer.innerHTML = tasks.map(task => `
+                <li data-id="${task.id}" class="${task.completed ? 'completed' : ''}">
+                    <div class="task-text" data-id="${task.id}">${escapeHtml(task.text)}</div>
+                    <div class="task-actions">
+                        <button class="edit-btn" data-id="${task.id}">✏️</button>
+                        <button class="delete-btn" data-id="${task.id}">🗑️</button>
+                    </div>
+                </li>
+            `).join('');
+        }
+        const total = tasks.length;
+        const completed = tasks.filter(t => t.completed).length;
+        totalSpan.innerText = total;
+        completedSpan.innerText = completed;
+        save();
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function addTask() {
+        const text = taskInput.value.trim();
+        if (!text) return alert('الرجاء كتابة مهمة');
+        tasks.push({ id: Date.now(), text: text, completed: false });
+        taskInput.value = '';
+        render();
+    }
+
+    function toggleComplete(id) {
+        const task = tasks.find(t => t.id == id);
+        if (task) task.completed = !task.completed;
+        render();
+    }
+
+    function deleteTask(id) {
+        tasks = tasks.filter(t => t.id != id);
+        render();
+    }
+
+    function editTask(id) {
+        const task = tasks.find(t => t.id == id);
+        if (!task) return;
+        const newText = prompt('تعديل المهمة:', task.text);
+        if (newText && newText.trim()) {
+            task.text = newText.trim();
+            render();
+        }
+    }
+
+    function clearCompleted() {
+        if (!tasks.some(t => t.completed)) return alert('لا توجد مهام منجزة');
+        if (confirm('حذف جميع المهام المنجزة؟')) {
+            tasks = tasks.filter(t => !t.completed);
+            render();
+        }
+    }
+
+    tasksContainer.addEventListener('click', (e) => {
+        const id = e.target.getAttribute('data-id');
+        if (!id) return;
+        if (e.target.classList.contains('delete-btn')) deleteTask(Number(id));
+        else if (e.target.classList.contains('edit-btn')) editTask(Number(id));
+        else if (e.target.classList.contains('task-text')) toggleComplete(Number(id));
+    });
+
+    addBtn.addEventListener('click', addTask);
+    taskInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTask(); });
+    clearCompletedBtn.addEventListener('click', clearCompleted);
+
+    loadTasks();
+</script>
+</body>
+</html>
