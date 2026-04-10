@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>مدير المهام - تطبيق عملي</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Tahoma', 'Cairo', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #1e2a3e 0%, #0f1724 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+        .app-card {
+            max-width: 650px;
+            width: 100%;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(12px);
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.15);
+            padding: 1.8rem;
+            transition: all 0.2s ease;
+        }
+        h1 {
+            color: #f0f3fa;
+            font-size: 1.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border-right: 4px solid #facc15;
+            padding-right: 1rem;
+            margin-bottom: 1rem;
+        }
+        h1 span {
+            background: #facc15;
+            color: #0f1724;
+            font-size: 1.2rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 40px;
+        }
+        .sub {
+            color: #b9c7d9;
+            margin-bottom: 1.8rem;
+            font-size: 0.9rem;
+            border-right: 2px solid #3b4e6b;
+            padding-right: 0.8rem;
+        }
+        .input-group {
+            display: flex;
+            gap: 0.7rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+        #taskInput {
+            flex: 1;
+            background: #ffffffea;
+            border: none;
+            padding: 0.9rem 1.2rem;
+            border-radius: 2rem;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            font-weight: 500;
+        }
+        #taskInput:focus {
+            box-shadow: 0 0 0 3px #facc1580;
+            background: white;
+        }
+        .btn-add {
+            background: #facc15;
+            border: none;
+            padding: 0 1.6rem;
+            border-radius: 2.5rem;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #1e2a3e;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .btn-add:hover {
+            background: #ffdf5e;
+            transform: scale(0.97);
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: #0a111c80;
+            padding: 0.7rem 1.2rem;
+            border-radius: 2rem;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+            font-weight: 500;
+            font-size: 0.85rem;
+            backdrop-filter: blur(4px);
+        }
+        .clear-btn {
+            background: none;
+            border: 1px solid #ef4444aa;
+            color: #fecaca;
+            padding: 0.2rem 1rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .clear-btn:hover {
+            background: #ef4444cc;
+            color: white;
+            border-color: #ef4444;
+        }
+        .tasks-list {
+            list-style: none;
+            max-height: 380px;
+            overflow-y: auto;
+            padding-left: 0.2rem;
+        }
+        .tasks-list li {
+            background: #f8fafc;
+            margin-bottom: 0.7rem;
+            border-radius: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.6rem 0.9rem 0.6rem 0.6rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #e2edff;
+        }
+        .task-text {
+            flex: 1;
+            font-size: 1rem;
+            padding: 0.4rem 0.7rem;
+            cursor: pointer;
+            color: #0f172a;
+            font-weight: 500;
+            word-break: break-word;
+        }
+        .completed .task-text {
+            text-decoration: line-through;
+            color: #6c7a91;
+        }
+        .task-actions {
+            display: flex;
+            gap: 0.4rem;
+        }
+        .edit-btn, .delete-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 34px;
+            height: 34px;
+            border-radius: 30px;
+            transition: 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .edit-btn {
+            color: #3b82f6;
+            background: #eef3ff;
+        }
+        .edit-btn:hover {
+            background: #bfdbfe;
+            transform: scale(0.92);
+        }
+        .delete-btn {
+            color: #dc2626;
+            background: #fee2e2;
+        }
+        .delete-btn:hover {
+            background: #fecaca;
+            transform: scale(0.92);
+        }
+        .empty-msg {
+            text-align: center;
+            color: #ccdbe9;
+            background: #ffffff18;
+            padding: 2rem;
+            border-radius: 2rem;
+            margin-top: 1rem;
+        }
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e2a3e;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #facc15;
+            border-radius: 10px;
+        }
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #8aa1bb;
+        }
+        @media (max-width: 500px) {
+            .app-card { padding: 1.2rem; }
+            .btn-add { padding: 0 1rem; }
+            .task-text { font-size: 0.85rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-card">
+    <h1>📋 مهامي <span>✔️</span></h1>
+    <div class="sub">نظّم يومك بذكاء — المهام محفوظة تلقائياً</div>
+
+    <div class="input-group">
+        <input type="text" id="taskInput" placeholder="اكتب مهمة جديدة ... مثل: مراجعة التطبيق" autocomplete="off">
+        <button class="btn-add" id="addBtn">➕ أضف</button>
+    </div>
+
+    <div class="stats">
+        <span>📌 إجمالي المهام: <strong id="totalCount">0</strong></span>
+        <span>✅ مكتملة: <strong id="completedCount">0</strong></span>
+        <button class="clear-btn" id="clearCompletedBtn">🗑️ حذف المكتملة</button>
+    </div>
+
+    <ul class="tasks-list" id="tasksList">
+        <li class="empty-msg">✨ أضف أول مهمة لك ... التطبيق يعمل فوراً!</li>
+    </ul>
+    <footer>🔁 حفظ تلقائي في المتصفح | اضغط على النص لتغيير الحالة</footer>
+</div>
+
+<script>
+    // ----- نموذج البيانات -----
+    let tasks = [];
+
+    // عناصر DOM
+    const tasksContainer = document.getElementById('tasksList');
+    const taskInput = document.getElementById('taskInput');
+    const addBtn = document.getElementById('addBtn');
+    const totalSpan = document.getElementById('totalCount');
+    const completedSpan = document.getElementById('completedCount');
+    const clearCompletedBtn = document.getElementById('clearCompletedBtn');
+
+    // تحميل البيانات من localStorage
+    function loadTasks() {
+        const stored = localStorage.getItem('practical_tasks_app');
+        if (stored) {
+            try {
+                tasks = JSON.parse(stored);
+            } catch(e) { tasks = []; }
+        }
+        if (!tasks.length) {
+            // مهمة توضيحية لتجربة التطبيق فوراً
+            tasks = [
+                { id: Date.now() + 1, text: '✨ انقر على أي مهمة لتغيير الحالة', completed: false },
+                { id: Date.now() + 2, text: '✏️ زر التعديل (قلم) لتعديل النص', completed: false },
+                { id: Date.now() + 3, text: '⭐ التطبيق يحفظ تلقائياً', completed: true }
+            ];
+        }
+        renderTasks();
+    }
+
+    // حفظ البيانات في localStorage
+    function saveToLocal() {
+        localStorage.setItem('practical_tasks_app', JSON.stringify(tasks));
+    }
+
+    // تحديث الإحصائيات
+    function updateStats() {
+        const total = tasks.length;
+        const completed = tasks.filter(t => t.completed === true).length;
+        totalSpan.innerText = total;
+        completedSpan.innerText = completed;
+    }
+
+    // عرض المهام في القائمة
+    function renderTasks() {
+        if (!tasksContainer) return;
+        if (tasks.length === 0) {
+            tasksContainer.innerHTML = `<li class="empty-msg">📭 لا توجد مهام حالياً .. أضف مهمة جديدة!</li>`;
+            updateStats();
+            return;
+        }
+
+        let html = '';
+        tasks.forEach(task => {
+            const isCompletedClass = task.completed ? 'completed' : '';
+            html += `
+                <li data-id="${task.id}" class="${isCompletedClass}">
+                    <div class="task-text" data-id="${task.id}">${escapeHtml(task.text)}</div>
+                    <div class="task-actions">
+                        <button class="edit-btn" data-id="${task.id}" title="تعديل">✏️</button>
+                        <button class="delete-btn" data-id="${task.id}" title="حذف">🗑️</button>
+                    </div>
+                </li>
+            `;
+        });
+        tasksContainer.innerHTML = html;
+        updateStats();
+        saveToLocal(); // تأكيد الحفظ بعد كل عرض (للتزامن)
+    }
+
+    // دالة بسيطة لمنع XSS
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+
+    // إضافة مهمة جديدة
+    function addNewTask() {
+        let text = taskInput.value.trim();
+        if (text === "") {
+            alert("✏️ الرجاء كتابة محتوى المهمة");
+            return;
+        }
+        const newTask = {
+            id: Date.now(),
+            text: text,
+            completed: false
+        };
+        tasks.push(newTask);
+        taskInput.value = "";
+        renderTasks();
+        taskInput.focus();
+    }
+
+    // تبديل حالة الإتمام (عند النقر على النص)
+    function toggleComplete(taskId) {
+        const task = tasks.find(t => t.id == taskId);
+        if (task) {
+            task.completed = !task.completed;
+            renderTasks();
+        }
+    }
+
+    // حذف مهمة
+    function deleteTask(taskId) {
+        tasks = tasks.filter(t => t.id != taskId);
+        renderTasks();
+    }
+
+    // تعديل المهمة
+    function editTask(taskId) {
+        const task = tasks.find(t => t.id == taskId);
+        if (!task) return;
+        const newText = prompt("✏️ عدّل نص المهمة:", task.text);
+        if (newText !== null && newText.trim() !== "") {
+            task.text = newText.trim();
+            renderTasks();
+        } else if (newText !== null && newText.trim() === "") {
+            alert("النص لا يمكن أن يكون فارغاً!");
+        }
+    }
+
+    // مسح المهام المكتملة فقط
+    function clearCompleted() {
+        const hasCompleted = tasks.some(t => t.completed === true);
+        if (!hasCompleted) {
+            alert("❗ لا توجد مهام مكتملة لحذفها");
+            return;
+        }
+        if (confirm("هل أنت متأكد من حذف جميع المهام المُكتملة؟")) {
+            tasks = tasks.filter(t => t.completed === false);
+            renderTasks();
+        }
+    }
+
+    // معالجة الأحداث (delegation على الحاوية)
+    function bindEvents() {
+        tasksContainer.addEventListener('click', (e) => {
+            // النقر على زر الحذف
+            if (e.target.classList.contains('delete-btn')) {
+                const id = e.target.getAttribute('data-id');
+                if (id) deleteTask(Number(id));
+                e.stopPropagation();
+            }
+            // النقر على زر التعديل
+            else if (e.target.classList.contains('edit-btn')) {
+                const id = e.target.getAttribute('data-id');
+                if (id) editTask(Number(id));
+                e.stopPropagation();
+            }
+            // النقر على النص نفسه (toggle)
+            else if (e.target.classList.contains('task-text')) {
+                const id = e.target.getAttribute('data-id');
+                if (id) toggleComplete(Number(id));
+                e.stopPropagation();
+            }
+        });
+        addBtn.addEventListener('click', addNewTask);
+        taskInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addNewTask();
+        });
+        clearCompletedBtn.addEventListener('click', clearCompleted);
+    }
+
+    // تهيئة التطبيق
+    function init() {
+        loadTasks();
+        bindEvents();
+    }
+
+    init();
+</script>
+</body>
+</html>
